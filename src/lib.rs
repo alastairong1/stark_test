@@ -1,14 +1,10 @@
 use winterfell::{
-    math::{fields::f128::BaseElement, FieldElement, ToElements},
-    Air, AirContext, Assertion, EvaluationFrame, ProofOptions, TraceInfo, TraceTable,
-    TransitionConstraintDegree,
-};
-
-use winterfell::{
     crypto::{hashers::Blake3_256, DefaultRandomCoin},
+    math::{fields::f128::BaseElement, FieldElement, ToElements},
     matrix::ColMatrix,
-    AuxRandElements, DefaultConstraintEvaluator, DefaultTraceLde, Prover, StarkDomain, Trace,
-    TracePolyTable,
+    Air, AirContext, Assertion, AuxRandElements, DefaultConstraintEvaluator, DefaultTraceLde,
+    EvaluationFrame, ProofOptions, Prover, StarkDomain, Trace, TraceInfo, TracePolyTable,
+    TraceTable, TransitionConstraintDegree,
 };
 
 pub fn build_do_work_trace(start: BaseElement, n: usize) -> TraceTable<BaseElement> {

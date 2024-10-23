@@ -1,9 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 use std::time::Instant;
-use winterfell::math::fields::f128::BaseElement;
-use winterfell::FieldExtension;
-use winterfell::{ProofOptions, Prover};
+use winterfell::{math::fields::f128::BaseElement, FieldExtension, ProofOptions, Prover};
 
 fn main() {
     // Start timer
