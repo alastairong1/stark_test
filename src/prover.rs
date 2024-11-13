@@ -1,5 +1,6 @@
+use winter_air::PartitionOptions;
 use winterfell::{
-    crypto::DefaultRandomCoin,
+    crypto::{DefaultRandomCoin, MerkleTree},
     math::{fields::f128::BaseElement, FieldElement},
     matrix::ColMatrix,
     AuxRandElements,
@@ -24,8 +25,9 @@ impl Prover for DoWorkProver {
     type Air = TrainAir;
     type Trace = TraceTable<BaseElement>;
     type HashFn = Blake3;
+    type VC = MerkleTree<Self::HashFn>;
     type RandomCoin = DefaultRandomCoin<Blake3>;
-    type TraceLde<E: FieldElement<BaseField = BaseElement>> = DefaultTraceLde<E, Blake3>;
+    type TraceLde<E: FieldElement<BaseField = BaseElement>> = DefaultTraceLde<E, Blake3, Self::VC>;
     type ConstraintEvaluator<'a, E: FieldElement<BaseField = BaseElement>> =
         DefaultConstraintEvaluator<'a, TrainAir, E>;
 
@@ -42,8 +44,9 @@ impl Prover for DoWorkProver {
         trace_info: &TraceInfo,
         main_trace: &ColMatrix<Self::BaseField>,
         domain: &StarkDomain<Self::BaseField>,
+        partition_option: PartitionOptions,
     ) -> (Self::TraceLde<E>, TracePolyTable<E>) {
-        DefaultTraceLde::new(trace_info, main_trace, domain)
+        DefaultTraceLde::new(trace_info, main_trace, domain, partition_option)
     }
 
     fn new_evaluator<'a, E: FieldElement<BaseField = BaseElement>>(

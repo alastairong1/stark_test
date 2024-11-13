@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::Write;
 use std::time::Instant;
 use winterfell::{
-    math::fields::f128::BaseElement, FieldExtension, ProofOptions, Prover, Serializable,
+    math::{fields::f128::BaseElement, FieldElement}, FieldExtension, ProofOptions, Prover,
 };
 use stark_test::{build_trace, DoWorkProver};
 
@@ -10,11 +10,13 @@ fn main() {
     // Start timer
     let start_time = Instant::now();
 
-    let start = BaseElement::new(3);
-    let n = 1024;
+    let seed = [BaseElement::from(42u8), BaseElement::from(43u8)];
+    let n = 16;
 
-    let trace = build_trace(start);
-    let result = trace.get(0, n - 1);
+    let trace = build_trace(seed);
+    let result = [trace.get(0,n-1), trace.get(1, n-1)];
+
+    
 
     let options = ProofOptions::new(
         32, // number of queries
@@ -36,7 +38,7 @@ fn main() {
 
     // Write result to file
     let mut result_file = File::create(result_path).expect("Unable to create result file");
-    let result_bytes = result.to_bytes();
+    let result_bytes = BaseElement::elements_as_bytes(&result);
     result_file
         .write_all(&result_bytes)
         .expect("Could not write result bytes to file");

@@ -6,8 +6,31 @@ use winterfell::{
 };
 
 use crate::{PublicInputs, TRACE_WIDTH};
-use crate::rescue::{CYCLE_LENGTH, enforce_round};
+use crate::rescue::{CYCLE_LENGTH, enforce_round, get_round_constants};
 use crate::utils::{are_equal, is_zero, not, EvaluationResult};
+
+// CONSTANTS
+// ================================================================================================
+
+/// Specifies steps on which Rescue transition function is applied.
+const CYCLE_MASK: [BaseElement; CYCLE_LENGTH] = [
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ONE,
+    BaseElement::ZERO,
+    BaseElement::ZERO,
+];
 
 pub struct TrainAir {
     context: AirContext<BaseElement>,
@@ -80,6 +103,12 @@ impl Air for TrainAir {
 
     fn context(&self) -> &AirContext<Self::BaseField> {
         &self.context
+    }
+
+    fn get_periodic_column_values(&self) -> Vec<Vec<Self::BaseField>> {
+        let mut result = vec![CYCLE_MASK.to_vec()];
+        result.append(&mut get_round_constants());
+        result
     }
 }
 
