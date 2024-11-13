@@ -34,6 +34,7 @@ const CYCLE_MASK: [BaseElement; CYCLE_LENGTH] = [
 
 pub struct TrainAir {
     context: AirContext<BaseElement>,
+    // TODO: Are these supposed to be the public inputs?
     seed: [BaseElement; 2],
     result: [BaseElement; 2],
 }
@@ -46,7 +47,7 @@ impl Air for TrainAir {
 
     fn new(trace_info: TraceInfo, pub_inputs: PublicInputs, options: ProofOptions) -> Self {
         assert_eq!(TRACE_WIDTH, trace_info.width());
-
+        // TODO: Fix
         let degrees = vec![
             TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
             TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
@@ -58,11 +59,12 @@ impl Air for TrainAir {
 
         TrainAir {
             context: AirContext::new(trace_info, degrees, num_assertions, options),
-            seed: pub_inputs.seed,
-            result: pub_inputs.result,
+            seed: pub_inputs.input_hash,
+            result: pub_inputs.output_hash,
         }
     }
 
+    // TODO: Fix
     fn evaluate_transition<E: FieldElement + From<Self::BaseField>>(
         &self,
         frame: &EvaluationFrame<E>,
@@ -93,11 +95,12 @@ impl Air for TrainAir {
         // for our computation to be valid, value in column 0 at step 0 must be equal to the
         // starting value, and at the last step it must be equal to the result.
         let last_step = self.trace_length() - 1;
+        // TODO: Fix with intermediate assertions too
         vec![
             Assertion::single(0, 0, self.seed[0]),
             Assertion::single(1, 0, self.seed[1]),
             Assertion::single(0, last_step, self.result[0]),
-            Assertion::single(1, last_step, self.result[1]),
+            Assertion::single(1, last_step, self.result[1]), 
         ]
     }
 
@@ -105,6 +108,8 @@ impl Air for TrainAir {
         &self.context
     }
 
+    // TODO: Need to understand if this is required and whether to get rid of it. Are there actually periodic values given this is not a hash chain?
+    // Periodic values will almost certainly cause an issue given irregular phase size
     fn get_periodic_column_values(&self) -> Vec<Vec<Self::BaseField>> {
         let mut result = vec![CYCLE_MASK.to_vec()];
         result.append(&mut get_round_constants());

@@ -69,7 +69,7 @@ pub fn verify_do_work(seed: [BaseElement; 2], result: [BaseElement; 2], proof: P
 
     // The number of steps and options are encoded in the proof itself, so we don't need to
     // pass them explicitly to the verifier.
-    let pub_inputs = PublicInputs { seed, result };
+    let pub_inputs = PublicInputs { input_hash: seed, output_hash: result };
     match verify::<TrainAir, Blake3, DefaultRandomCoin<Blake3>, MerkleTree<Blake3>>(proof, pub_inputs, &min_opts) {
         Ok(_) => println!("yay! all good!"),
         Err(_) => panic!("something went terribly wrong!"),
