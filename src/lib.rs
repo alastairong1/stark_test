@@ -11,13 +11,14 @@ mod prover;
 pub use prover::DoWorkProver;
 
 mod rescue;
-use rescue::{CYCLE_LENGTH, NUM_ROUNDS};
+use rescue::{HASH_CYCLE_LENGTH, NUM_ROUNDS};
 
 pub mod utils;
 
 pub type Blake3 = Blake3_256<BaseElement>;
 
 pub const TRACE_WIDTH: usize = 5;
+pub const COMPUTE_CYCLE_LENGTH: usize = 1; 
 
 pub struct PublicInputs {
     pub input_hash: [BaseElement; 2],
@@ -40,7 +41,7 @@ impl ToElements<BaseElement> for PublicInputs {
     // On hashing two parallel hashings
 pub fn build_trace(seed: [BaseElement; 2]) -> TraceTable<BaseElement> {
     
-    let trace_length = CYCLE_LENGTH;
+    let trace_length = HASH_CYCLE_LENGTH * 2 + COMPUTE_CYCLE_LENGTH;
         let mut trace = TraceTable::new(TRACE_WIDTH, trace_length);
         const TWO: BaseElement = BaseElement::new(2);
 
@@ -54,35 +55,35 @@ pub fn build_trace(seed: [BaseElement; 2]) -> TraceTable<BaseElement> {
                 state[4] = BaseElement::ZERO; // Phase
             },
             |step, state| {
-                // execute the transition function for all steps
-                //
-                // for the first 14 steps in every cycle, compute a single round of
+                // for the first 14 steps compute a single round of
                 // Rescue hash; for the remaining 2 rounds, just carry over the values
                 // in the first two registers to the next step
                 match state[4] {
                     BaseElement::ZERO => {
-                        if (step % CYCLE_LENGTH) < NUM_ROUNDS {
+                        if step < NUM_ROUNDS {
                             rescue::apply_round(state, step);
                         } else {
                             state[2] = BaseElement::ZERO;
                             state[3] = BaseElement::ZERO;
                         }
-
-                        // TODO: Add condition to increment phase
+                        // If we're on the last step then increment to next phase
+                        if step == HASH_CYCLE_LENGTH - 1 {
+                            state[4] = BaseElement::ONE;
+                        }
                     }
 
                     BaseElement::ONE => {
-                        // TODO: Check that state[0] and state[1] are in fact the input hash that we want to multiply
-                        // I think it is because it is the result returned from the basic hashing function
+                        // I think this is the hash because it is the result 
+                        // returned from the hashing function example
                         state[0] = state[0] * BaseElement::new(2);
                         state[1] = state[1] * BaseElement::new(2);
-                        // state[2] = BaseElement::ZERO; // Reinitialise just in case. But this might be wasteful so remove in future?
-                        // state[3] = BaseElement::ZERO; // Reinitialise just in case
+                        // state[2] = BaseElement::ZERO; // Reinitialise 
+                        // state[3] = BaseElement::ZERO; // Reinitialise 
                         state[4] = TWO; 
                     }
 
                     TWO => {
-                        if (step % CYCLE_LENGTH) < NUM_ROUNDS { // TODO: This needs to get fixed due to the irregular phase size
+                        if (step % (HASH_CYCLE_LENGTH + COMPUTE_CYCLE_LENGTH) ) < NUM_ROUNDS { 
                             rescue::apply_round(state, step);
                         } else {
                             state[2] = BaseElement::ZERO;

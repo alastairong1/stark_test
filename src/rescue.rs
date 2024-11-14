@@ -12,7 +12,7 @@ use crate::utils::{are_equal, EvaluationResult};
 pub const NUM_ROUNDS: usize = 14;
 
 pub const STATE_WIDTH: usize = 4;
-pub const CYCLE_LENGTH: usize = 16;
+pub const HASH_CYCLE_LENGTH: usize = 16;
 
 // HASH FUNCTION
 // ================================================================================================
@@ -33,7 +33,7 @@ pub const CYCLE_LENGTH: usize = 16;
 
 pub fn apply_round(state: &mut [BaseElement], step: usize) {
     // determine which round constants to use
-    let ark = ARK[step % CYCLE_LENGTH];
+    let ark = ARK[step % HASH_CYCLE_LENGTH];
 
     // apply first half of Rescue round
     apply_sbox(state);
@@ -90,11 +90,11 @@ pub fn enforce_round<E: FieldElement + From<BaseElement>>(
 pub fn get_round_constants() -> Vec<Vec<BaseElement>> {
     let mut constants = Vec::new();
     for _ in 0..(STATE_WIDTH * 2) {
-        constants.push(vec![BaseElement::ZERO; CYCLE_LENGTH]);
+        constants.push(vec![BaseElement::ZERO; HASH_CYCLE_LENGTH]);
     }
 
     #[allow(clippy::needless_range_loop)]
-    for i in 0..CYCLE_LENGTH {
+    for i in 0..HASH_CYCLE_LENGTH {
         for j in 0..(STATE_WIDTH * 2) {
             constants[j][i] = ARK[i][j];
         }
@@ -207,7 +207,7 @@ const INV_MDS: [BaseElement; STATE_WIDTH * STATE_WIDTH] = [
     BaseElement::new(303406774346515776750608316419662860081),
 ];
 
-pub const ARK: [[BaseElement; STATE_WIDTH * 2]; CYCLE_LENGTH] = [
+pub const ARK: [[BaseElement; STATE_WIDTH * 2]; HASH_CYCLE_LENGTH] = [
     [
         BaseElement::new(252629594110556276281235816992330349983),
         BaseElement::new(121163867507455621442731872354015891839),

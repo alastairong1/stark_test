@@ -6,14 +6,14 @@ use winterfell::{
 };
 
 use crate::{PublicInputs, TRACE_WIDTH};
-use crate::rescue::{CYCLE_LENGTH, enforce_round, get_round_constants};
+use crate::rescue::{HASH_CYCLE_LENGTH, enforce_round, get_round_constants};
 use crate::utils::{are_equal, is_zero, not, EvaluationResult};
 
 // CONSTANTS
 // ================================================================================================
 
 /// Specifies steps on which Rescue transition function is applied.
-const CYCLE_MASK: [BaseElement; CYCLE_LENGTH] = [
+const CYCLE_MASK: [BaseElement; HASH_CYCLE_LENGTH] = [
     BaseElement::ONE,
     BaseElement::ONE,
     BaseElement::ONE,
@@ -49,10 +49,10 @@ impl Air for TrainAir {
         assert_eq!(TRACE_WIDTH, trace_info.width());
         // TODO: Fix
         let degrees = vec![
-            TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
-            TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
-            TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
-            TransitionConstraintDegree::with_cycles(3, vec![CYCLE_LENGTH]),
+            TransitionConstraintDegree::with_cycles(3, vec![HASH_CYCLE_LENGTH]),
+            TransitionConstraintDegree::with_cycles(3, vec![HASH_CYCLE_LENGTH]),
+            TransitionConstraintDegree::with_cycles(3, vec![HASH_CYCLE_LENGTH]),
+            TransitionConstraintDegree::with_cycles(3, vec![HASH_CYCLE_LENGTH]),
         ];
 
         let num_assertions = 4;
